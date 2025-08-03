@@ -11,7 +11,7 @@ def read_excel(file):
 file = st.file_uploader('choose a file', type=['xlsx', 'xlsm'])
 
 if file is not None:
-    df = read_excel(file, engine="openpyxl")
+    df = read_excel(file)
     
     
     if 'Made' in df.columns and 'Planned' in df.columns:
