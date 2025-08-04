@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import altair as alt
 
 
 @st.cache_data
@@ -28,7 +29,21 @@ if file is not None:
             total_ctp = (grouped_weeks['Made'].sum() / grouped_weeks['Planned'].sum()) * 100
             st.metric(label='Total CTP', value=f"{total_ctp:.2f}%")
 
-        st.dataframe(grouped_weeks, use_container_width=True)
-        st.bar_chart(data=grouped_weeks, x='WeekNumber', y=['Planned', 'Made'], stack=False)
+        with st.expander('Data'):
+            st.dataframe(grouped_weeks, use_container_width=True)
+        
+
+        chart = alt.Chart(grouped_weeks).transform_fold(
+            ['Planned', 'Made'],
+            as_=['Type', 'Value']
+        ).mark_bar().encode(
+            x=alt.X('WeekNumber:O', title='Week Number', axis=alt.Axis(labelAngle=45)),
+            xOffset=alt.XOffset('Type:N', sort=['Planned', 'Made']),
+            y=alt.Y('Value:Q', title='Count'),
+            color=alt.Color('Type:N', sort=['Planned', 'Made']),
+        )
+
+        st.altair_chart(chart, use_container_width=True)
+        
     else:
         st.error("The uploaded file does not contain the required columns 'Made' and 'Planned'.")
